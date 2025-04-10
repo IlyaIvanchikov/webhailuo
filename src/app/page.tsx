@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import Image from 'next/image';
 
 interface FormData {
   prompt: string;
@@ -147,10 +148,12 @@ export default function Home() {
           />
           {image && (
             <div className="mt-4">
-              <img
+              <Image
                 src={image}
                 alt="Preview"
-                className="max-w-xs rounded-lg shadow-md"
+                width={320}
+                height={180}
+                className="rounded-lg shadow-md"
               />
             </div>
           )}
@@ -236,9 +239,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {results.map((url, index) => (
               <div key={index} className="relative group">
-                <img
+                <Image
                   src={url}
                   alt={`Generated image ${index + 1}`}
+                  width={400}
+                  height={300}
                   className="rounded-lg shadow-md w-full h-auto object-cover"
                   onError={(e) => {
                     console.error(`Failed to load image ${index + 1}:`, url);

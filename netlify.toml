@@ -3,9 +3,12 @@
   publish = ".next"
 
 [build.environment]
-  NEXT_PUBLIC_API_KEY = ""
-  NEXT_PUBLIC_USERNAME = ""
-  NEXT_PUBLIC_PASSWORD = ""
+  NEXT_PUBLIC_USERNAME = "test"
+  NEXT_PUBLIC_PASSWORD = "test"
+  NEXT_PUBLIC_API_KEY = "your_api_key_here"
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs" 
+  package = "@netlify/plugin-nextjs"
+
+[build.processing]
+  skip_processing = true 

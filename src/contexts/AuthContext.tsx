@@ -10,6 +10,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Get environment variables at build time
+const ENV = {
+  USERNAME: process.env.NEXT_PUBLIC_USERNAME || '',
+  PASSWORD: process.env.NEXT_PUBLIC_PASSWORD || '',
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -17,14 +23,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Debug logging
     console.log('Login attempt with:', {
       username,
-      expectedUsername: process.env.NEXT_PUBLIC_USERNAME,
+      expectedUsername: ENV.USERNAME,
       password,
-      expectedPassword: process.env.NEXT_PUBLIC_PASSWORD
+      expectedPassword: ENV.PASSWORD,
+      env: process.env
     });
 
     // In a real app, you would validate against your backend
-    if (username === process.env.NEXT_PUBLIC_USERNAME && 
-        password === process.env.NEXT_PUBLIC_PASSWORD) {
+    if (username === ENV.USERNAME && password === ENV.PASSWORD) {
       setIsAuthenticated(true);
       // Store authentication state in localStorage
       localStorage.setItem('isAuthenticated', 'true');

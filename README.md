@@ -1,4 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Image Generation App
+
+A Next.js application that allows users to upload images and generate new ones using the Minimaxi API.
+
+## Features
+
+- User authentication
+- Image upload
+- Image generation with customizable parameters
+- Responsive design
+- Environment variable configuration
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env.local` file in the root directory with the following variables:
+   ```
+   NEXT_PUBLIC_API_KEY=your_api_key_here
+   NEXT_PUBLIC_USERNAME=your_username_here
+   NEXT_PUBLIC_PASSWORD=your_password_here
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Deployment
+
+This application can be deployed to any hosting platform that supports Next.js and environment variables. Some recommended options:
+
+1. Vercel (Recommended)
+   - Create a Vercel account
+   - Import your repository
+   - Add environment variables in the project settings
+   - Deploy
+
+2. Netlify
+   - Create a Netlify account
+   - Import your repository
+   - Add environment variables in the site settings
+   - Deploy
+
+3. Railway
+   - Create a Railway account
+   - Import your repository
+   - Add environment variables in the project settings
+   - Deploy
+
+## Environment Variables
+
+- `NEXT_PUBLIC_API_KEY`: Your Minimaxi API key
+- `NEXT_PUBLIC_USERNAME`: Username for authentication
+- `NEXT_PUBLIC_PASSWORD`: Password for authentication
+
+## Technologies Used
+
+- Next.js
+- React
+- TypeScript
+- TailwindCSS
+- Axios
 
 ## Getting Started
 

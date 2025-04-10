@@ -1,103 +1,266 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
+interface FormData {
+  prompt: string;
+  aspectRatio: string;
+  n: number;
+  promptOptimizer: boolean;
+}
+
+interface ApiResponse {
+  id: string;
+  data: {
+    image_urls: string[];
+  };
+  metadata: {
+    failed_count: string;
+    success_count: string;
+  };
+  base_resp: {
+    status_code: number;
+    status_msg: string;
+  };
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [results, setResults] = useState<string[]>([]);
+  const { isAuthenticated, logout } = useAuth();
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [formData, setFormData] = useState<FormData>({
+    prompt: '',
+    aspectRatio: '16:9',
+    n: 4,
+    promptOptimizer: true,
+  });
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!image) {
+      setError('Please upload an image first');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setResults([]); // Clear previous results
+
+    try {
+      const response = await axios.post<ApiResponse>(
+        'https://api.minimaxi.chat/v1/image_generation',
+        {
+          model: 'image-01',
+          prompt: formData.prompt,
+          subject_reference: [
+            {
+              type: 'character',
+              image_file: image,
+            },
+          ],
+          aspect_ratio: formData.aspectRatio,
+          response_format: 'url',
+          n: formData.n,
+          prompt_optimizer: formData.promptOptimizer,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+        }
+      );
+
+      if (response.data.base_resp.status_code === 0 && response.data.data.image_urls) {
+        console.log('Received images:', response.data.data.image_urls);
+        setResults(response.data.data.image_urls);
+      } else {
+        setError(response.data.base_resp.status_msg || 'Failed to generate images');
+      }
+    } catch (err) {
+      setError('Failed to generate images. Please try again.');
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isAuthenticated) {
+    router.push('/login');
+    return null;
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Image Generation</h1>
+        <button
+          onClick={() => {
+            logout();
+            router.push('/login');
+          }}
+          className="text-red-600 hover:text-red-800"
+        >
+          Logout
+        </button>
+      </div>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Upload Reference Image
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="block w-full text-sm text-gray-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-semibold
+              file:bg-indigo-50 file:text-indigo-700
+              hover:file:bg-indigo-100"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          {image && (
+            <div className="mt-4">
+              <img
+                src={image}
+                alt="Preview"
+                className="max-w-xs rounded-lg shadow-md"
+              />
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="prompt" className="block text-sm font-medium text-gray-700">
+            Prompt
+          </label>
+          <input
+            type="text"
+            id="prompt"
+            value={formData.prompt}
+            onChange={(e) => setFormData({ ...formData, prompt: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            required
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+        </div>
+
+        <div>
+          <label htmlFor="aspectRatio" className="block text-sm font-medium text-gray-700">
+            Aspect Ratio
+          </label>
+          <select
+            id="aspectRatio"
+            value={formData.aspectRatio}
+            onChange={(e) => setFormData({ ...formData, aspectRatio: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+            <option value="16:9">16:9</option>
+            <option value="1:1">1:1</option>
+            <option value="4:3">4:3</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="n" className="block text-sm font-medium text-gray-700">
+            Number of Images
+          </label>
+          <input
+            type="number"
+            id="n"
+            min="1"
+            max="10"
+            value={formData.n}
+            onChange={(e) => setFormData({ ...formData, n: parseInt(e.target.value) })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="promptOptimizer"
+            checked={formData.promptOptimizer}
+            onChange={(e) => setFormData({ ...formData, promptOptimizer: e.target.checked })}
+            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          />
+          <label htmlFor="promptOptimizer" className="ml-2 block text-sm text-gray-900">
+            Enable Prompt Optimizer
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+        >
+          {loading ? 'Generating...' : 'Generate Images'}
+        </button>
+      </form>
+
+      {loading && (
+        <div className="mt-8 text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent"></div>
+          <p className="mt-2 text-gray-600">Generating images...</p>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Generated Images ({results.length})</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {results.map((url, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={url}
+                  alt={`Generated image ${index + 1}`}
+                  className="rounded-lg shadow-md w-full h-auto object-cover"
+                  onError={(e) => {
+                    console.error(`Failed to load image ${index + 1}:`, url);
+                    (e.target as HTMLImageElement).src = '/image-error.png';
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
+                  <p className="text-sm">Image {index + 1}</p>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-indigo-300 hover:text-indigo-100"
+                  >
+                    View full size
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

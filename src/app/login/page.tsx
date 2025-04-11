@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -10,14 +10,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    // Debug: Log environment variables (they should be visible in browser console)
-    console.log('Environment variables:', {
-      username: process.env.NEXT_PUBLIC_USERNAME,
-      password: process.env.NEXT_PUBLIC_PASSWORD
-    });
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

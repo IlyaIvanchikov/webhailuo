@@ -244,27 +244,79 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {results.map((url, index) => (
               <div key={index} className="relative group">
-                <Image
-                  src={url}
-                  alt={`Generated image ${index + 1}`}
-                  width={400}
-                  height={300}
-                  className="rounded-lg shadow-md w-full h-auto object-cover"
-                  onError={(e) => {
-                    console.error(`Failed to load image ${index + 1}:`, url);
-                    (e.target as HTMLImageElement).src = '/image-error.png';
-                  }}
-                />
+                <div className="relative aspect-video">
+                  <Image
+                    src={url}
+                    alt={`Generated image ${index + 1}`}
+                    width={400}
+                    height={300}
+                    className="rounded-lg shadow-md w-full h-full object-cover"
+                    onError={(e) => {
+                      console.error(`Failed to load image ${index + 1}:`, url);
+                      (e.target as HTMLImageElement).src = '/image-error.png';
+                    }}
+                  />
+                </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
                   <p className="text-sm">Image {index + 1}</p>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-indigo-300 hover:text-indigo-100"
-                  >
-                    View full size
-                  </a>
+                  <div className="flex justify-between items-center mt-1">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-indigo-300 hover:text-indigo-100"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.open(url, '_blank');
+                      }}
+                    >
+                      View full size
+                    </a>
+                    <button
+                      className="text-xs text-indigo-300 hover:text-indigo-100"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        try {
+                          // Create a temporary image element
+                          const img = new Image();
+                          img.crossOrigin = 'anonymous';
+                          
+                          // Wait for the image to load
+                          await new Promise((resolve, reject) => {
+                            img.onload = resolve;
+                            img.onerror = reject;
+                            img.src = url;
+                          });
+
+                          // Create a canvas and draw the image
+                          const canvas = document.createElement('canvas');
+                          canvas.width = img.width;
+                          canvas.height = img.height;
+                          const ctx = canvas.getContext('2d');
+                          if (!ctx) throw new Error('Could not get canvas context');
+                          ctx.drawImage(img, 0, 0);
+
+                          // Convert canvas to blob and download
+                          canvas.toBlob((blob) => {
+                            if (!blob) throw new Error('Could not create blob');
+                            const blobUrl = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = blobUrl;
+                            a.download = `generated-image-${index + 1}.jpg`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(blobUrl);
+                            document.body.removeChild(a);
+                          }, 'image/jpeg', 0.95);
+                        } catch (error) {
+                          console.error('Error downloading image:', error);
+                          alert('Failed to download image. Please try viewing it in a new tab and saving it manually.');
+                        }
+                      }}
+                    >
+                      Download
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

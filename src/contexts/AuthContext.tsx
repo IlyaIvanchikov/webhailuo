@@ -20,15 +20,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const login = (username: string, password: string) => {
-    // Debug logging
-    console.log('Login attempt with:', {
-      username,
-      expectedUsername: ENV.USERNAME,
-      password,
-      expectedPassword: ENV.PASSWORD,
-      env: process.env
-    });
-
     // In a real app, you would validate against your backend
     if (username === ENV.USERNAME && password === ENV.PASSWORD) {
       setIsAuthenticated(true);

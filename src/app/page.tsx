@@ -278,7 +278,7 @@ export default function Home() {
                         e.preventDefault();
                         try {
                           // Create a temporary image element
-                          const img = new Image();
+                          const img = document.createElement('img');
                           img.crossOrigin = 'anonymous';
                           
                           // Wait for the image to load

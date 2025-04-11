@@ -260,33 +260,65 @@ export default function Home() {
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
                   <p className="text-sm">Image {index + 1}</p>
                   <div className="flex justify-between items-center mt-1">
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
                       className="text-xs text-indigo-300 hover:text-indigo-100"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.open(url, '_blank');
+                      onClick={() => {
+                        const newWindow = window.open('', '_blank');
+                        if (newWindow) {
+                          newWindow.document.write(`
+                            <!DOCTYPE html>
+                            <html>
+                              <head>
+                                <title>Image ${index + 1}</title>
+                                <style>
+                                  body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
+                                  img { max-width: 100%; max-height: 100vh; }
+                                </style>
+                              </head>
+                              <body>
+                                <img src="${url}" alt="Generated image ${index + 1}" />
+                              </body>
+                            </html>
+                          `);
+                          newWindow.document.close();
+                        }
                       }}
                     >
                       View full size
-                    </a>
-                    <a
-                      href={url}
-                      download={`generated-image-${index + 1}.jpg`}
+                    </button>
+                    <button
                       className="text-xs text-indigo-300 hover:text-indigo-100"
-                      onClick={(e) => {
-                        // If the download doesn't start automatically, open in new tab
-                        setTimeout(() => {
-                          if (!e.defaultPrevented) {
-                            window.open(url, '_blank');
-                          }
-                        }, 100);
+                      onClick={() => {
+                        const newWindow = window.open('', '_blank');
+                        if (newWindow) {
+                          newWindow.document.write(`
+                            <!DOCTYPE html>
+                            <html>
+                              <head>
+                                <title>Download Image ${index + 1}</title>
+                                <style>
+                                  body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
+                                  .container { text-align: center; color: white; }
+                                  a { color: #818cf8; text-decoration: none; }
+                                  a:hover { text-decoration: underline; }
+                                </style>
+                              </head>
+                              <body>
+                                <div class="container">
+                                  <h2>Image ${index + 1}</h2>
+                                  <p>Right-click the image below and select "Save image as..." to download</p>
+                                  <img src="${url}" alt="Generated image ${index + 1}" style="max-width: 100%; max-height: 80vh; margin: 20px 0;" />
+                                  <p><a href="${url}" target="_blank">Open in new tab</a></p>
+                                </div>
+                              </body>
+                            </html>
+                          `);
+                          newWindow.document.close();
+                        }
                       }}
                     >
                       Download
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>

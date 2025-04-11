@@ -283,31 +283,36 @@ export default function Home() {
                           
                           // Wait for the image to load
                           await new Promise((resolve, reject) => {
-                            img.onload = resolve;
+                            img.onload = () => {
+                              // Create a canvas with the same dimensions as the image
+                              const canvas = document.createElement('canvas');
+                              const ctx = canvas.getContext('2d');
+                              if (!ctx) throw new Error('Could not get canvas context');
+                              
+                              // Set canvas dimensions to match the image
+                              canvas.width = img.naturalWidth;
+                              canvas.height = img.naturalHeight;
+                              
+                              // Draw the image
+                              ctx.drawImage(img, 0, 0);
+                              
+                              // Convert to blob and download
+                              canvas.toBlob((blob) => {
+                                if (!blob) throw new Error('Could not create blob');
+                                const blobUrl = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = blobUrl;
+                                a.download = `generated-image-${index + 1}.jpg`;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(blobUrl);
+                                document.body.removeChild(a);
+                                resolve(null);
+                              }, 'image/jpeg', 0.95);
+                            };
                             img.onerror = reject;
                             img.src = url;
                           });
-
-                          // Create a canvas and draw the image
-                          const canvas = document.createElement('canvas');
-                          canvas.width = img.width;
-                          canvas.height = img.height;
-                          const ctx = canvas.getContext('2d');
-                          if (!ctx) throw new Error('Could not get canvas context');
-                          ctx.drawImage(img, 0, 0);
-
-                          // Convert canvas to blob and download
-                          canvas.toBlob((blob) => {
-                            if (!blob) throw new Error('Could not create blob');
-                            const blobUrl = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = blobUrl;
-                            a.download = `generated-image-${index + 1}.jpg`;
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(blobUrl);
-                            document.body.removeChild(a);
-                          }, 'image/jpeg', 0.95);
                         } catch (error) {
                           console.error('Error downloading image:', error);
                           alert('Failed to download image. Please try viewing it in a new tab and saving it manually.');

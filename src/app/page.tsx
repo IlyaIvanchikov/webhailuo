@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -36,10 +36,16 @@ export default function Home() {
   const { isAuthenticated, logout } = useAuth();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
   const [formData, setFormData] = useState<FormData>({
     prompt: '',
     aspectRatio: '16:9',
-    n: 4,
+    n: 2,
     promptOptimizer: true,
   });
 
@@ -105,7 +111,6 @@ export default function Home() {
   };
 
   if (!isAuthenticated) {
-    router.push('/login');
     return null;
   }
 

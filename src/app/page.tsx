@@ -5,10 +5,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Image from 'next/image';
+import { AspectRatioSelect } from '@/components/AspectRatioSelect';
+import { DEFAULT_FORM_VALUES, AspectRatio } from '@/constants/imageGeneration';
 
 interface FormData {
   prompt: string;
-  aspectRatio: string;
+  aspectRatio: AspectRatio;
   n: number;
   promptOptimizer: boolean;
 }
@@ -42,12 +44,7 @@ export default function Home() {
     }
   }, [isAuthenticated, router]);
 
-  const [formData, setFormData] = useState<FormData>({
-    prompt: '',
-    aspectRatio: '16:9',
-    n: 2,
-    promptOptimizer: true,
-  });
+  const [formData, setFormData] = useState<FormData>(DEFAULT_FORM_VALUES);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -179,19 +176,10 @@ export default function Home() {
         </div>
 
         <div>
-          <label htmlFor="aspectRatio" className="block text-sm font-medium text-gray-700">
-            Aspect Ratio
-          </label>
-          <select
-            id="aspectRatio"
+          <AspectRatioSelect
             value={formData.aspectRatio}
-            onChange={(e) => setFormData({ ...formData, aspectRatio: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option value="16:9">16:9</option>
-            <option value="1:1">1:1</option>
-            <option value="4:3">4:3</option>
-          </select>
+            onChange={(value) => setFormData({ ...formData, aspectRatio: value })}
+          />
         </div>
 
         <div>

@@ -228,27 +228,19 @@ export default function MiniMaxiPage() {
                         >
                           View full size
                         </button>
-                        <button
-                          onClick={async () => {
-                            try {
-                              const response = await fetch(url);
-                              const blob = await response.blob();
-                              const downloadUrl = window.URL.createObjectURL(blob);
-                              const link = document.createElement('a');
-                              link.href = downloadUrl;
-                              link.download = `generated-image-${index + 1}.png`;
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
-                              window.URL.revokeObjectURL(downloadUrl);
-                            } catch (err) {
-                              console.error('Failed to download image:', err);
-                            }
+                        <a
+                          href={url}
+                          download={`generated-image-${index + 1}.png`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-300 hover:text-blue-100 cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.location.href = url;
                           }}
-                          className="text-xs text-blue-300 hover:text-blue-100"
                         >
                           Download
-                        </button>
+                        </a>
                       </div>
                     </div>
                   </div>

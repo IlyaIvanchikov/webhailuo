@@ -62,7 +62,10 @@ export default function MiniMaxiPage() {
       const response = await minimaxiApi.generateImages(request);
       
       if (response.base_resp.status_code === 0 && response.data.image_urls) {
-        setResults(response.data.image_urls);
+        const secureUrls = response.data.image_urls.map(url => 
+          url.replace('http://', 'https://')
+        );
+        setResults(secureUrls);
       } else {
         setError(response.base_resp.status_msg || 'Failed to generate images');
       }
@@ -205,6 +208,7 @@ export default function MiniMaxiPage() {
                         <button
                           className="text-xs text-indigo-300 hover:text-indigo-100"
                           onClick={() => {
+                            const secureUrl = url.replace('http://', 'https://');
                             const newWindow = window.open('', '_blank');
                             if (newWindow) {
                               newWindow.document.write(`
@@ -218,7 +222,7 @@ export default function MiniMaxiPage() {
                                     </style>
                                   </head>
                                   <body>
-                                    <img src="${url}" alt="Generated image ${index + 1}" />
+                                    <img src="${secureUrl}" alt="Generated image ${index + 1}" />
                                   </body>
                                 </html>
                               `);
@@ -229,14 +233,14 @@ export default function MiniMaxiPage() {
                           View full size
                         </button>
                         <a
-                          href={url}
+                          href={url.replace('http://', 'https://')}
                           download={`generated-image-${index + 1}.png`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-xs text-blue-300 hover:text-blue-100 cursor-pointer"
                           onClick={(e) => {
                             e.preventDefault();
-                            window.location.href = url;
+                            window.location.href = url.replace('http://', 'https://');
                           }}
                         >
                           Download

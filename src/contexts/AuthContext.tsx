@@ -4,7 +4,8 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => void;
+  isLoading: boolean;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -18,15 +19,20 @@ const ENV = {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = (username: string, password: string) => {
-    // In a real app, you would validate against your backend
-    if (username === ENV.USERNAME && password === ENV.PASSWORD) {
-      setIsAuthenticated(true);
-      // Store authentication state in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-    } else {
-      throw new Error('Invalid credentials');
+  const login = async (username: string, password: string) => {
+    try {
+      // In a real app, you would validate against your backend
+      if (username === ENV.USERNAME && password === ENV.PASSWORD) {
+        setIsAuthenticated(true);
+        // Store authentication state in localStorage
+        localStorage.setItem('isAuthenticated', 'true');
+      } else {
+        throw new Error('Invalid credentials');
+      }
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -37,14 +43,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Check for existing authentication on mount
   useEffect(() => {
-    const storedAuth = localStorage.getItem('isAuthenticated');
-    if (storedAuth === 'true') {
-      setIsAuthenticated(true);
-    }
+    const checkAuth = () => {
+      try {
+        const storedAuth = localStorage.getItem('isAuthenticated');
+        setIsAuthenticated(storedAuth === 'true');
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -73,6 +73,7 @@ export default function KlingTestPage() {
       const response = await klingApi.generateVideo(goApiPayload);
       setTaskId(response.data.task_id);
     } catch (err) {
+      console.error(err);
       setError('Failed to generate video. Please try again.');
       setLoading(false);
     }
@@ -102,6 +103,7 @@ export default function KlingTestPage() {
             clearInterval(intervalId);
           }
         } catch (err) {
+          console.error(err);
           setError('Failed to check task status. Please try again.');
           setLoading(false);
           clearInterval(intervalId);

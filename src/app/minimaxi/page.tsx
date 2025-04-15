@@ -202,39 +202,53 @@ export default function MiniMaxiPage() {
                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
                       <p className="text-sm">Image {index + 1}</p>
                       <div className="flex justify-between items-center mt-1">
-                      <button
-                      className="text-xs text-indigo-300 hover:text-indigo-100"
-                      onClick={() => {
-                        const newWindow = window.open('', '_blank');
-                        if (newWindow) {
-                          newWindow.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                              <head>
-                                <title>Image ${index + 1}</title>
-                                <style>
-                                  body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
-                                  img { max-width: 100%; max-height: 100vh; }
-                                </style>
-                              </head>
-                              <body>
-                                <img src="${url}" alt="Generated image ${index + 1}" />
-                              </body>
-                            </html>
-                          `);
-                          newWindow.document.close();
-                        }
-                      }}
-                    >
-                      View full size
-                    </button>
-                        <a
-                          href={url}
-                          download={`generated-image-${index + 1}.png`}
+                        <button
+                          className="text-xs text-indigo-300 hover:text-indigo-100"
+                          onClick={() => {
+                            const newWindow = window.open('', '_blank');
+                            if (newWindow) {
+                              newWindow.document.write(`
+                                <!DOCTYPE html>
+                                <html>
+                                  <head>
+                                    <title>Image ${index + 1}</title>
+                                    <style>
+                                      body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
+                                      img { max-width: 100%; max-height: 100vh; }
+                                    </style>
+                                  </head>
+                                  <body>
+                                    <img src="${url}" alt="Generated image ${index + 1}" />
+                                  </body>
+                                </html>
+                              `);
+                              newWindow.document.close();
+                            }
+                          }}
+                        >
+                          View full size
+                        </button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(url);
+                              const blob = await response.blob();
+                              const downloadUrl = window.URL.createObjectURL(blob);
+                              const link = document.createElement('a');
+                              link.href = downloadUrl;
+                              link.download = `generated-image-${index + 1}.png`;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              window.URL.revokeObjectURL(downloadUrl);
+                            } catch (err) {
+                              console.error('Failed to download image:', err);
+                            }
+                          }}
                           className="text-xs text-blue-300 hover:text-blue-100"
                         >
                           Download
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>

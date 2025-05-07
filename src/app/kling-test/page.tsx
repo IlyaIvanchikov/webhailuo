@@ -61,10 +61,12 @@ export default function KlingTestPage() {
         model: KlingAiModel.Kling,
         input: {
           duration: 5,
+          cfg_scale: 0.5,
           mode: KlingAiMode.Std,
+          aspect_ratio: '16:9',
           prompt: prompt,
           elements: [{ image_url: imageUrl }],
-          negative_prompt: 'blurry, distorted faces, extra limbs, bad anatomy, deformed expressions, unnatural lighting, pixelated, artifacts, watermark, low resolution, unnatural poses, awkward body positioning, stiff motion, unrealistic skin.',
+          negative_prompt: '',
           version: KlingAiVersion.Version16
         },
         task_type: KlingAiTaskType.VideoGeneration

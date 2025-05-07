@@ -31,6 +31,8 @@ export interface KlingAiInput {
     elements?: KlingAiElement[];
     negative_prompt?: string;
     version?: KlingAiVersion;
+    cfg_scale?: number;
+    aspect_ratio?: string;
 }
 
 export interface KlingAi {

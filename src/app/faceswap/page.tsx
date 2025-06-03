@@ -69,23 +69,6 @@ export default function FaceSwapPage() {
     }
   };
 
-
-const ImageDownloader = (url: string) => {
-    fetch(url)
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'downloaded-image.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch(err => console.error('Download failed:', err));
-  }
-
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-100 p-8">
@@ -188,42 +171,12 @@ const ImageDownloader = (url: string) => {
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
                   <div className="flex justify-between items-center">
-                    <button
-                      className="text-xs text-indigo-300 hover:text-indigo-100"
-                      onClick={() => {
-                        const newWindow = window.open('', '_blank');
-                        if (newWindow) {
-                          newWindow.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                              <head>
-                                <title>Face Swap Result</title>
-                                <style>
-                                  body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
-                                  img { max-width: 100%; max-height: 100vh; }
-                                </style>
-                              </head>
-                              <body>
-                                <img src="${resultImage}" alt="Face swap result" />
-                              </body>
-                            </html>
-                          `);
-                          newWindow.document.close();
-                        }
-                      }}
-                    >
-                      View full size
-                    </button>
-                        <button onClick={() => ImageDownloader(resultImage)}>
-                      Download Image
-                    </button>
-
                     <a
                       href={resultImage}
-                      download
+                      target="_blank"
                       className="text-xs text-blue-300 hover:text-blue-100 cursor-pointer"
                     >
-                      Download
+                      Open in new tab
                     </a>
                   </div>
                 </div>

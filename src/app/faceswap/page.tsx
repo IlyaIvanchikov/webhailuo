@@ -69,6 +69,23 @@ export default function FaceSwapPage() {
     }
   };
 
+
+const ImageDownloader = (url: string) => {
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'downloaded-image.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(err => console.error('Download failed:', err));
+  }
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-100 p-8">
@@ -197,16 +214,14 @@ export default function FaceSwapPage() {
                     >
                       View full size
                     </button>
+                        <button onClick={() => ImageDownloader(resultImage)}>
+                      Download Image
+                    </button>
+
                     <a
                       href={resultImage}
-                      download="face-swap-result.png"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      download
                       className="text-xs text-blue-300 hover:text-blue-100 cursor-pointer"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.location.href = resultImage;
-                      }}
                     >
                       Download
                     </a>

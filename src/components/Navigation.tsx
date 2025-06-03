@@ -49,6 +49,18 @@ export default function Navigation() {
                 MiniMaxi
               </Link>
             </li>
+            <li>
+              <Link
+                href="/faceswap"
+                className={`px-4 py-2 rounded-md ${
+                  pathname === '/faceswap'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                Face Swap
+              </Link>
+            </li>
             <li className="ml-auto">
               <button
                 onClick={logout}

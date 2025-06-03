@@ -64,7 +64,7 @@ export default function KlingTestPage() {
           cfg_scale: 0.5,
           mode: KlingAiMode.Std,
           aspect_ratio: '9:16',
-          prompt: prompt,
+          prompt,
           elements: [{ image_url: imageUrl }],
           negative_prompt: '',
           version: KlingAiVersion.Version16

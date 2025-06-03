@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { FaceSwapRequest, FaceSwapResponse } from '@/types/faceswap';
 
 export class FaceSwapApiService {
@@ -30,13 +30,12 @@ export class FaceSwapApiService {
             return {
                 resultUrl: response.data.ResultImageUrl,
             };
-        } catch (error: { [key: string]: unknown }) {
+        } catch (error) {
             console.error('Face swap error:', error);
             let errorMessage = 'Failed to perform face swap';
-            const data = error.response && error.response.data;
-            if (data) {
+            if (error instanceof AxiosError && error.response?.data) {
+                const data = error.response.data;
                 if (data.Errors && typeof data.Errors === 'object') {
-                    // Collect all error messages from nested Errors object
                     errorMessage = Object.values(data.Errors).flat().join(' ');
                 } else if (data.Message || data.message) {
                     errorMessage = data.Message || data.message;

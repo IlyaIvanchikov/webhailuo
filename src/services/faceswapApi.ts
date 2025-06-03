@@ -30,7 +30,7 @@ export class FaceSwapApiService {
             return {
                 resultUrl: response.data.ResultImageUrl,
             };
-        } catch (error: any) {
+        } catch (error: { [key: string]: unknown }) {
             console.error('Face swap error:', error);
             let errorMessage = 'Failed to perform face swap';
             const data = error.response && error.response.data;
